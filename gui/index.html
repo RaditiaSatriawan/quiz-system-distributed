@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizNet — Distributed Assessment Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background: var(--bg-gradient);
+        }
+        .landing-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--card-border);
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            animation: fadeIn 0.8s ease;
+        }
+        .landing-logo {
+            font-size: 4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .landing-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+        .landing-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+        .role-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .role-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+        .role-card:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+        .role-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+        .role-card.admin .role-icon { background: rgba(0, 210, 255, 0.1); color: #00d2ff; }
+        .role-card.student .role-icon { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .role-info {
+            text-align: left;
+        }
+        .role-info h3 { margin-bottom: 5px; }
+        .role-info p { font-size: 0.85rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="landing-container">
+        <i class="fas fa-bolt landing-logo"></i>
+        <h1 class="landing-title">QuizNet</h1>
+        <p class="landing-subtitle">Distributed Assessment Platform</p>
+        
+        <div class="role-cards">
+            <a href="admin.html" class="role-card admin">
+                <div class="role-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="role-info">
+                    <h3>Login sebagai Admin</h3>
+                    <p>Kelola kuis, pantau nilai, dan status node.</p>
+                </div>
+            </a>
+            
+            <a href="student.html" class="role-card student">
+                <div class="role-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="role-info">
+                    <h3>Login sebagai Mahasiswa</h3>
+                    <p>Kerjakan kuis dan lihat hasil penilaian.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
