@@ -118,7 +118,7 @@ async function loadDashboard() {
 
         const clusterDiv = document.getElementById('clusterOverview');
         const totalNodes = nodes.nodes ? nodes.nodes.length : 0;
-        const healthy = nodes.nodes ? nodes.nodes.filter(n => n.healthy).length : 0;
+        const healthy = nodes.nodes ? nodes.nodes.filter(n => n.status === 'healthy').length : 0;
         clusterDiv.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <span>Total Nodes Configured</span>
@@ -317,7 +317,7 @@ async function loadSystemStatus() {
         const nodesData = await apiFetch('/system/nodes');
         const nodes = nodesData.nodes || [];
         document.getElementById('totalNodes').innerText = nodes.length;
-        document.getElementById('healthyNodes').innerText = nodes.filter(n => n.healthy).length;
+        document.getElementById('healthyNodes').innerText = nodes.filter(n => n.status === 'healthy').length;
         
         document.getElementById('nodeHealthList').innerHTML = `<table>
             <thead><tr><th>Node ID</th><th>Host</th><th>Port</th><th>Status</th></tr></thead>
@@ -327,7 +327,7 @@ async function loadSystemStatus() {
                         <td>Node <strong>${n.id}</strong></td>
                         <td>${n.host}</td>
                         <td>${n.port}</td>
-                        <td>${n.healthy ? `<span class="badge badge-graded"><i class="fas fa-check"></i> Online</span>` : `<span class="badge badge-pending" style="color:var(--danger); border-color:var(--danger)"><i class="fas fa-times"></i> Offline</span>`}</td>
+                        <td>${n.status === 'healthy' ? `<span class="badge badge-graded"><i class="fas fa-check"></i> Online</span>` : `<span class="badge badge-pending" style="color:var(--danger); border-color:var(--danger)"><i class="fas fa-times"></i> Offline</span>`}</td>
                     </tr>
                 `).join('')}
             </tbody>

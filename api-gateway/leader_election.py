@@ -150,13 +150,13 @@ class RingLeaderElection:
                     "forwarded_to": successor['id']
                 }
             else:
-                # Already participant, just forward
-                logger.info(f"[Node {self.node_id}] Already participant, forwarding candidate {candidate_id}")
-                self._send_election_async(successor, candidate_id)
+                # Already participant, ignore (swallow) the lower candidate ID
+                logger.info(f"[Node {self.node_id}] Already participant, dropping lower candidate {candidate_id}")
                 return {
-                    "status": "forwarded_as_participant",
+                    "status": "dropped",
                     "node_id": self.node_id,
-                    "candidate_id": candidate_id
+                    "candidate_id": candidate_id,
+                    "message": "Lower candidate ID dropped by higher participant"
                 }
 
         else:
@@ -276,6 +276,24 @@ class RingLeaderElection:
             logger.warning(
                 f"[Node {self.node_id}] Failed to send coordinator to Node {target_node['id']}: {e}"
             )
+            self._try_next_node_coordinator(target_node, leader_id)
+
+    def _try_next_node_coordinator(self, failed_node, leader_id):
+        """If a node is unreachable, skip to the next node in the ring for coordinator message."""
+        node_ids = [n['id'] for n in self.nodes]
+        try:
+            failed_index = node_ids.index(failed_node['id'])
+            next_index = (failed_index + 1) % len(self.nodes)
+            next_node = self.nodes[next_index]
+
+            if next_node['id'] == self.node_id:
+                # Full circle reached, all other nodes are dead
+                return
+
+            logger.info(f"[Node {self.node_id}] Skipping failed Node {failed_node['id']} for coordinator, trying Node {next_node['id']}")
+            self._send_coordinator_message(next_node, leader_id)
+        except ValueError:
+            logger.error(f"[Node {self.node_id}] Failed node not found in ring")
 
     def _try_next_node_election(self, failed_node, candidate_id):
         """If a node is unreachable, skip to the next node in the ring."""

@@ -128,7 +128,7 @@ services:
       QUIZ_SERVICE_URL: http://quiz-service:6000
       SUBMISSION_SERVICE_URL: http://submission-service:7000
       NOTIFICATION_SERVICE_URL: http://notification-service:8000
-      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002}]'
+      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002},{"id":4,"host":"api-gateway-4","port":5003},{"id":5,"host":"api-gateway-5","port":5004}]'
     depends_on:
       - quiz-service
       - submission-service
@@ -148,7 +148,7 @@ services:
       QUIZ_SERVICE_URL: http://quiz-service:6000
       SUBMISSION_SERVICE_URL: http://submission-service:7000
       NOTIFICATION_SERVICE_URL: http://notification-service:8000
-      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002}]'
+      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002},{"id":4,"host":"api-gateway-4","port":5003},{"id":5,"host":"api-gateway-5","port":5004}]'
     depends_on:
       - quiz-service
       - submission-service
@@ -168,7 +168,47 @@ services:
       QUIZ_SERVICE_URL: http://quiz-service:6000
       SUBMISSION_SERVICE_URL: http://submission-service:7000
       NOTIFICATION_SERVICE_URL: http://notification-service:8000
-      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002}]'
+      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002},{"id":4,"host":"api-gateway-4","port":5003},{"id":5,"host":"api-gateway-5","port":5004}]'
+    depends_on:
+      - quiz-service
+      - submission-service
+      - notification-service
+    networks:
+      - quiz-network
+    restart: unless-stopped
+
+  # API Gateway 4
+  api-gateway-4:
+    build: ./api-gateway
+    ports:
+      - "5003:5003"
+    environment:
+      NODE_ID: 4
+      NODE_PORT: 5003
+      QUIZ_SERVICE_URL: http://quiz-service:6000
+      SUBMISSION_SERVICE_URL: http://submission-service:7000
+      NOTIFICATION_SERVICE_URL: http://notification-service:8000
+      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002},{"id":4,"host":"api-gateway-4","port":5003},{"id":5,"host":"api-gateway-5","port":5004}]'
+    depends_on:
+      - quiz-service
+      - submission-service
+      - notification-service
+    networks:
+      - quiz-network
+    restart: unless-stopped
+
+  # API Gateway 5
+  api-gateway-5:
+    build: ./api-gateway
+    ports:
+      - "5004:5004"
+    environment:
+      NODE_ID: 5
+      NODE_PORT: 5004
+      QUIZ_SERVICE_URL: http://quiz-service:6000
+      SUBMISSION_SERVICE_URL: http://submission-service:7000
+      NOTIFICATION_SERVICE_URL: http://notification-service:8000
+      NODES_CONFIG: '[{"id":1,"host":"api-gateway-1","port":5000},{"id":2,"host":"api-gateway-2","port":5001},{"id":3,"host":"api-gateway-3","port":5002},{"id":4,"host":"api-gateway-4","port":5003},{"id":5,"host":"api-gateway-5","port":5004}]'
     depends_on:
       - quiz-service
       - submission-service
@@ -189,6 +229,8 @@ services:
       - api-gateway-1
       - api-gateway-2
       - api-gateway-3
+      - api-gateway-4
+      - api-gateway-5
     networks:
       - quiz-network
     restart: unless-stopped
