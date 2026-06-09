@@ -3,8 +3,6 @@ let pollIntervals = {};
 let currentQuizData = null;
 let currentAnswers = {};
 
-// --- UTILITIES ---
-
 function showLoading() {
     document.getElementById('loadingOverlay').classList.add('active');
 }
@@ -17,17 +15,16 @@ function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     let icon = 'info-circle';
     if(type === 'success') icon = 'check-circle';
     if(type === 'error') icon = 'exclamation-circle';
 
     toast.innerHTML = `<i class="fas fa-${icon}"></i> <span>${message}</span>`;
     container.appendChild(toast);
-    
-    // trigger animation
+
     setTimeout(() => toast.classList.add('show'), 10);
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
@@ -56,15 +53,12 @@ function getStudentId() {
     return document.getElementById('globalStudentId').value || 'student1';
 }
 
-// --- NAVIGATION ---
-
 function switchTab(tabId) {
-    // hide all pages
+
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    // de-activate all navs
+
     document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
-    
-    // activate selected
+
     document.getElementById(`page-${tabId}`).classList.add('active');
     const activeNav = document.querySelector(`.nav-link[data-tab="${tabId}"]`);
     if(activeNav) {
@@ -76,7 +70,6 @@ function switchTab(tabId) {
         document.getElementById('sidebar').classList.remove('open');
     }
 
-    // specific tab logic
     if(tabId === 'dashboard') loadDashboard();
     else if(tabId === 'quizzes') loadQuizzes();
     else if(tabId === 'take-quiz') {
@@ -89,7 +82,6 @@ function switchTab(tabId) {
     else if(tabId === 'system') loadSystemStatus();
 }
 
-// --- MODALS ---
 function openCreateQuizModal() {
     document.getElementById('createQuizForm').reset();
     document.getElementById('modalCreateQuiz').classList.add('active');
@@ -105,7 +97,6 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
 }
 
-// --- API FETCH WRAPPER ---
 async function apiFetch(endpoint, options = {}) {
     try {
         const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -122,7 +113,6 @@ async function apiFetch(endpoint, options = {}) {
     }
 }
 
-// --- DASHBOARD ---
 async function loadDashboard() {
     try {
         const [quizzes, submissions, notifs, nodes] = await Promise.all([
@@ -131,14 +121,13 @@ async function loadDashboard() {
             apiFetch('/notifications').catch(() => []),
             apiFetch('/system/nodes').catch(() => ({nodes:[]}))
         ]);
-        
-        // Update stats
+
         const qCount = document.querySelector('#statQuizzes .stat-number');
         animateValue(qCount, 0, quizzes.length || 0, 1000);
-        
+
         const sCount = document.querySelector('#statSubmissions .stat-number');
         animateValue(sCount, 0, submissions.length || 0, 1000);
-        
+
         let passRate = 0;
         const graded = submissions.filter(s => s.status === 'graded');
         if(graded.length > 0) {
@@ -146,11 +135,10 @@ async function loadDashboard() {
             passRate = Math.round((passed / graded.length) * 100);
         }
         document.querySelector('#statPassRate .stat-number').innerHTML = `${passRate}<span class="stat-unit">%</span>`;
-        
+
         const unreadCount = notifs.filter(n => !n.is_read).length;
         document.querySelector('#statNotifications .stat-number').innerText = unreadCount;
-        
-        // Update badge
+
         const badge = document.getElementById('notifBadge');
         if(unreadCount > 0) {
             badge.style.display = 'inline-block';
@@ -159,7 +147,6 @@ async function loadDashboard() {
             badge.style.display = 'none';
         }
 
-        // Recent Activity (use recent submissions)
         const recentDiv = document.getElementById('recentActivity');
         if(submissions.length === 0) {
             recentDiv.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No recent activity</p></div>`;
@@ -176,7 +163,6 @@ async function loadDashboard() {
             recentDiv.innerHTML = recentHTML;
         }
 
-        // Cluster Overview
         const clusterDiv = document.getElementById('clusterOverview');
         const totalNodes = nodes.nodes ? nodes.nodes.length : 0;
         const healthy = nodes.nodes ? nodes.nodes.filter(n => n.healthy).length : 0;
@@ -192,11 +178,10 @@ async function loadDashboard() {
         `;
 
     } catch(e) {
-        // quiet error
+
     }
 }
 
-// --- QUIZZES ---
 async function loadQuizzes() {
     showLoading();
     try {
@@ -256,8 +241,7 @@ async function deleteQuiz(id) {
 async function handleAddQuestion(e) {
     e.preventDefault();
     const quizId = document.getElementById('questionQuizId').value;
-    
-    // Get options and correct answer
+
     const options = document.querySelectorAll('.option-input');
     const correctRadios = document.getElementsByName('correctOption');
     let correctLetter = 'a';
@@ -313,7 +297,6 @@ async function viewQuizQuestions(id) {
     } finally { hideLoading(); }
 }
 
-// --- TAKE QUIZ ---
 async function loadAvailableQuizzes() {
     showLoading();
     try {
@@ -350,12 +333,12 @@ async function startQuiz(id) {
         }
         currentQuizData = quiz;
         currentAnswers = {};
-        
+
         document.getElementById('quizSelection').style.display = 'none';
         document.getElementById('quizTakingArea').style.display = 'block';
         document.getElementById('quizTakingTitle').innerText = quiz.title;
         document.getElementById('quizQuestionCount').innerText = `${quiz.questions.length} Questions`;
-        
+
         renderQuizQuestions();
     } catch(e) {
     } finally { hideLoading(); }
@@ -392,10 +375,9 @@ function renderQuizQuestions() {
 }
 
 function selectAnswer(questionId, optionLetter, el) {
-    // Save answer
+
     currentAnswers[questionId] = optionLetter;
-    
-    // UI update
+
     const grid = el.parentElement;
     grid.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
     el.classList.add('selected');
@@ -412,7 +394,7 @@ async function submitQuiz() {
     if(Object.keys(currentAnswers).length < currentQuizData.questions.length) {
         if(!confirm('You have unanswered questions. Submit anyway?')) return;
     }
-    
+
     const payload = {
         student_name: getStudentId(),
         quiz_id: currentQuizData.id,
@@ -428,13 +410,11 @@ async function submitQuiz() {
         showToast('Quiz submitted for grading! You will receive a notification soon.', 'success');
         document.getElementById('quizSelection').style.display = 'block';
         document.getElementById('quizTakingArea').style.display = 'none';
-        
-        // immediately poll for status updates
+
         setTimeout(loadNotifications, 2000);
     } finally { hideLoading(); }
 }
 
-// --- RESULTS ---
 async function loadSubmissions() {
     showLoading();
     try {
@@ -473,7 +453,7 @@ async function viewSubmissionDetail(id) {
         const sub = await apiFetch(`/submissions/${id}`);
         const card = document.getElementById('resultDetailCard');
         const detail = document.getElementById('resultDetail');
-        
+
         detail.innerHTML = `
             <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
                 <div>
@@ -487,7 +467,7 @@ async function viewSubmissionDetail(id) {
                     </h2>
                 </div>
             </div>
-            
+
             ${sub.answers ? `
                 <h4>Answers Recorded:</h4>
                 <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px; margin-top:15px;">
@@ -500,20 +480,17 @@ async function viewSubmissionDetail(id) {
                 </div>
             ` : '<p>No answer details available.</p>'}
         `;
-        
+
         card.style.display = 'block';
         card.scrollIntoView({behavior:'smooth'});
     } finally { hideLoading(); }
 }
 
-
-// --- NOTIFICATIONS ---
 async function loadNotifications() {
     try {
         const notifs = await apiFetch('/notifications');
         const container = document.getElementById('notificationsList');
-        
-        // update dashboard stats too if we are active
+
         const unreadCount = notifs.filter(n => !n.is_read).length;
         const badge = document.getElementById('notifBadge');
         if(unreadCount > 0) {
@@ -526,7 +503,7 @@ async function loadNotifications() {
         if(notifs.length === 0) {
             container.innerHTML = `<div class="empty-state"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>`;
         } else {
-            // sorted newest first
+
             notifs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
             container.innerHTML = notifs.map(n => `
                 <div class="notification-item ${n.is_read ? '' : 'unread'}">
@@ -553,11 +530,10 @@ async function markAsRead(id) {
     } catch(e) {}
 }
 
-// --- SYSTEM ---
 async function loadSystemStatus() {
     showLoading();
     try {
-        // Fetch Leader Info
+
         try {
             const leaderData = await apiFetch('/leader');
             document.getElementById('leaderNodeId').innerText = leaderData.leader_id || 'Election in progress';
@@ -565,13 +541,12 @@ async function loadSystemStatus() {
             document.getElementById('leaderNodeId').innerText = 'Unknown';
         }
 
-        // Fetch Node Health
         const nodesData = await apiFetch('/system/nodes');
         const nodes = nodesData.nodes || [];
-        
+
         document.getElementById('totalNodes').innerText = nodes.length;
         document.getElementById('healthyNodes').innerText = nodes.filter(n => n.healthy).length;
-        
+
         const container = document.getElementById('nodeHealthList');
         container.innerHTML = `<table>
             <thead><tr><th>Node ID</th><th>Host</th><th>Port</th><th>Status</th></tr></thead>
@@ -606,22 +581,18 @@ async function triggerElection() {
     } finally { hideLoading(); }
 }
 
-
-// --- INITIALIZATION & EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Load initial tab
+
     switchTab('dashboard');
 
-    // Setup polling
     pollIntervals.dashboard = setInterval(() => {
         if(document.getElementById('page-dashboard').classList.contains('active')) {
             loadDashboard();
         }
     }, 10000);
-    
+
     pollIntervals.notifications = setInterval(loadNotifications, 15000);
 
-    // Sidebar toggle for mobile
     document.getElementById('menuToggle').addEventListener('click', () => {
         document.getElementById('sidebar').classList.add('open');
     });

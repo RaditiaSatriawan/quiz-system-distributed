@@ -1,7 +1,6 @@
 const API_BASE = '/api';
 let pollIntervals = {};
 
-// --- UTILITIES ---
 function showLoading() { document.getElementById('loadingOverlay').classList.add('active'); }
 function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
 
@@ -51,7 +50,6 @@ async function apiFetch(endpoint, options = {}) {
     }
 }
 
-// --- NAVIGATION ---
 function switchTab(tabId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
@@ -69,7 +67,6 @@ function switchTab(tabId) {
     else if(tabId === 'system') loadSystemStatus();
 }
 
-// --- MODALS ---
 function openCreateQuizModal() {
     document.getElementById('createQuizForm').reset();
     document.getElementById('modalCreateQuiz').classList.add('active');
@@ -81,7 +78,6 @@ function openAddQuestionModal(quizId) {
 }
 function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
 
-// --- DASHBOARD ---
 async function loadDashboard() {
     try {
         const [quizzes, submissions, nodes] = await Promise.all([
@@ -89,10 +85,10 @@ async function loadDashboard() {
             apiFetch('/submissions').catch(() => []),
             apiFetch('/system/nodes').catch(() => ({nodes:[]}))
         ]);
-        
+
         animateValue(document.querySelector('#statQuizzes .stat-number'), 0, quizzes.length || 0, 1000);
         animateValue(document.querySelector('#statSubmissions .stat-number'), 0, submissions.length || 0, 1000);
-        
+
         let passRate = 0;
         const graded = submissions.filter(s => s.status === 'graded');
         if(graded.length > 0) {
@@ -100,7 +96,7 @@ async function loadDashboard() {
             passRate = Math.round((passed / graded.length) * 100);
         }
         document.querySelector('#statPassRate .stat-number').innerHTML = `${passRate}<span class="stat-unit">%</span>`;
-        
+
         const recentDiv = document.getElementById('recentActivity');
         if(submissions.length === 0) {
             recentDiv.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No recent activity</p></div>`;
@@ -132,7 +128,6 @@ async function loadDashboard() {
     } catch(e) {}
 }
 
-// --- QUIZZES ---
 async function loadQuizzes() {
     showLoading();
     try {
@@ -240,7 +235,6 @@ async function viewQuizQuestions(id) {
     } finally { hideLoading(); }
 }
 
-// --- RESULTS ---
 async function loadSubmissions() {
     showLoading();
     try {
@@ -305,7 +299,6 @@ async function viewSubmissionDetail(id) {
     } finally { hideLoading(); }
 }
 
-// --- SYSTEM ---
 async function loadSystemStatus() {
     showLoading();
     try {
@@ -318,7 +311,7 @@ async function loadSystemStatus() {
         const nodes = nodesData.nodes || [];
         document.getElementById('totalNodes').innerText = nodes.length;
         document.getElementById('healthyNodes').innerText = nodes.filter(n => n.status === 'healthy').length;
-        
+
         document.getElementById('nodeHealthList').innerHTML = `<table>
             <thead><tr><th>Node ID</th><th>Host</th><th>Port</th><th>Status</th></tr></thead>
             <tbody>
@@ -344,14 +337,13 @@ async function triggerElection() {
     } finally { hideLoading(); }
 }
 
-// --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
     switchTab('dashboard');
     pollIntervals.dashboard = setInterval(() => {
         if(document.getElementById('page-dashboard').classList.contains('active')) loadDashboard();
         if(document.getElementById('page-system').classList.contains('active')) loadSystemStatus();
     }, 10000);
-    
+
     document.getElementById('menuToggle').addEventListener('click', () => {
         document.getElementById('sidebar').classList.add('open');
     });

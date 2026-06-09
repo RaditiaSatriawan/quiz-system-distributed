@@ -3,7 +3,6 @@ let pollIntervals = {};
 let currentQuizData = null;
 let currentAnswers = {};
 
-// --- UTILITIES ---
 function showLoading() { document.getElementById('loadingOverlay').classList.add('active'); }
 function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
 
@@ -46,7 +45,6 @@ async function apiFetch(endpoint, options = {}) {
     }
 }
 
-// --- NAVIGATION ---
 function switchTab(tabId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
@@ -67,7 +65,6 @@ function switchTab(tabId) {
     else if(tabId === 'notifications') loadNotifications();
 }
 
-// --- TAKE QUIZ ---
 async function loadAvailableQuizzes() {
     showLoading();
     try {
@@ -104,12 +101,12 @@ async function startQuiz(id) {
         }
         currentQuizData = quiz;
         currentAnswers = {};
-        
+
         document.getElementById('quizSelection').style.display = 'none';
         document.getElementById('quizTakingArea').style.display = 'block';
         document.getElementById('quizTakingTitle').innerText = quiz.title;
         document.getElementById('quizQuestionCount').innerText = `${quiz.questions.length} Questions`;
-        
+
         renderQuizQuestions();
     } catch(e) {
     } finally { hideLoading(); }
@@ -163,7 +160,7 @@ async function submitQuiz() {
     if(Object.keys(currentAnswers).length < currentQuizData.questions.length) {
         if(!confirm('You have unanswered questions. Submit anyway?')) return;
     }
-    
+
     const payload = {
         student_name: getStudentId(),
         quiz_id: currentQuizData.id,
@@ -179,12 +176,11 @@ async function submitQuiz() {
         showToast('Quiz submitted for grading! You will receive a notification soon.', 'success');
         document.getElementById('quizSelection').style.display = 'block';
         document.getElementById('quizTakingArea').style.display = 'none';
-        
+
         setTimeout(loadNotifications, 2000);
     } finally { hideLoading(); }
 }
 
-// --- RESULTS ---
 async function loadMySubmissions() {
     showLoading();
     try {
@@ -195,7 +191,7 @@ async function loadMySubmissions() {
         ]);
         const subs = subsData.filter(s => s.student_name === studentId);
         const notifs = notifsData.filter(n => n.student_name === studentId);
-        
+
         const container = document.getElementById('resultsList');
         if(subs.length === 0) {
             container.innerHTML = `<div class="empty-state"><i class="fas fa-chart-pie"></i><p>You haven't submitted any quizzes yet</p></div>`;
@@ -258,14 +254,12 @@ async function viewSubmissionDetail(id, hasNotif = true) {
     } finally { hideLoading(); }
 }
 
-
-// --- NOTIFICATIONS ---
 async function loadNotifications() {
     try {
         const studentId = getStudentId();
         const notifsData = await apiFetch('/notifications');
         const notifs = notifsData.filter(n => n.student_name === studentId);
-        
+
         const unreadCount = notifs.filter(n => !n.is_read).length;
         const badge = document.getElementById('notifBadge');
         if(unreadCount > 0) {
@@ -304,10 +298,9 @@ async function markAsRead(id) {
     } catch(e) {}
 }
 
-// --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
     switchTab('take-quiz');
-    
+
     document.getElementById('globalStudentId').addEventListener('change', () => {
         showToast('Changed active student ID');
         if(document.getElementById('page-results').classList.contains('active')) loadMySubmissions();
@@ -315,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     pollIntervals.notifications = setInterval(loadNotifications, 10000);
-    
+
     document.getElementById('menuToggle').addEventListener('click', () => {
         document.getElementById('sidebar').classList.add('open');
     });
